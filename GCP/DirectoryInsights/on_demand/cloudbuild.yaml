@@ -1,0 +1,29 @@
+substitutions:
+  # JC Services: directory, radius, sso, systems, ldap, mdm
+  # Can accept multiple values' for example:  _JC_SERVICE: directory,systems or gather logs from all services with the _JC_SERVICE: all
+  _JC_SERVICE: ""
+  _BUCKET_NAME: ""
+  _FUNCTION_NAME: ""
+  _SERVICE_ACCOUNT_EMAIL: ""
+  _REGION_LOCATION: ""
+  _SECRET_JC_API_KEY_NAME: "" 
+  _SECRET_JC_ORG_ID_NAME: ""
+  _MEMORY: ""
+
+steps:
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  args:
+    - gcloud
+    - functions
+    - deploy
+    - $_FUNCTION_NAME
+    - --docker-registry=container-registry
+    - --region=$_REGION_LOCATION
+    - --entry-point=run_di
+    - --service-account=$_SERVICE_ACCOUNT_EMAIL
+    - --source=.
+    - --trigger-http
+    - --runtime=python39
+    - --memory=$_MEMORY
+    - --set-secrets=jc_api_key=$_SECRET_JC_API_KEY_NAME:latest,jc_org_id=$_SECRET_JC_ORG_ID_NAME:latest
+    - --set-env-vars=^:^service=$_JC_SERVICE:bucket_name=$_BUCKET_NAME
